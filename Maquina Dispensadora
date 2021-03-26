@@ -1,0 +1,337 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Dispensador1
+{
+    public class productos
+    {
+        public List<Productos> Productos { get; set; }
+
+        public string Pago { get; set; }
+        public double Cambio { get; set; }
+        public int Costo { get; set; }
+        public int Cantidad { get; set; }
+
+        public Maquina_Dispensadora()
+        {
+            this.Productos = new List<Productos>();
+
+            Productos yogurt = new Productos();
+            yogurt.codigo = "01";
+            yogurt.Nombre = "Yogurt";
+            yogurt.Categoria = "yogurt_rica";
+            yogurt.Cantidad = 25;
+            yogurt.Costo = 35;
+
+            Productos papitas = new Productos();
+            papitas.codigo = "02";
+            papitas.Nombre = "Fritolays";
+            papitas.Categoria = "frito_lays";
+            papitas.Cantidad = 12;
+            papitas.Costo = 15;
+
+            Productos galletas = new Productos();
+            galletas.codigo = "03";
+            galletas.Nombre = "Galleta Hatuei";
+            galletas.Categoria = "galletas_soda";
+            galletas.Cantidad = 12;
+            galletas.Costo = 200;
+
+            Productos refresco = new Productos();
+            refresco.codigo = "04";
+            refresco.Nombre = "Coca-Cola";
+            refresco.Categoria = "botella";
+            refresco.Cantidad = 12;
+            refresco.Costo = 15;
+
+            Productos bebidas = new Productos();
+            bebidas.codigo = "05";
+            bebidas.Nombre = "Jugo";
+            bebidas.Categoria = "jugo_natural";
+            bebidas.Cantidad = 14;
+            bebidas.Costo = 30; 
+
+            Productos agua_dasani = new Productos();
+            agua_dasani.codigo = "06";
+            agua_dasani.Nombre = "Agua";
+            agua_dasani.Categoria = "agua_dasani";
+            agua_dasani.Cantidad = 19;
+            agua_dasani.Costo = 20;
+
+            Productos botella_agua = new Productos();
+            botella_agua.codigo = "07";
+            botella_agua.Nombre = "Agua Saborizada";
+            botella_agua.Categoria = "saborisada_dasani";
+            botella_agua.Cantidad = 25;
+            botella_agua.Costo = 50;
+
+            Productos fritolayscheese = new Productos();
+            fritolayscheese.codigo = "08";
+            fritolayscheese.Nombre = "FritoLays de Queso";
+            fritolayscheese.Categoria = "frito_lays";
+            fritolayscheese.Cantidad = 15;
+            fritolayscheese.Costo = 30;
+
+            Productos mofongo = new Productos();
+            mofongo.codigo = "09";
+            mofongo.Nombre = "Mofongo";
+            mofongo.Categoria = "frito_lays";
+            mofongo.Cantidad = 20;
+            mofongo.Costo = 30;
+
+            Productos chocolate = new Productos();
+            chocolate.codigo = "10";
+            chocolate.Nombre = "Snickers";
+            chocolate.Categoria = "Chocolates";
+            chocolate.Cantidad = 12;
+            chocolate.Costo = 50;
+                             
+            
+            this.Productos.Add(galletas);            
+            this.Productos.Add(bebidas);
+            this.Productos.Add(papitas);
+            this.Productos.Add(chocolate);            
+            this.Productos.Add(fritolayscheese);
+            this.Productos.Add(mofongo);
+            this.Productos.Add(agua_dasani);
+            this.Productos.Add(yogurt);
+            this.Productos.Add(botella_agua);
+            this.Productos.Add(refresco);
+        }
+
+        public int validaProducto(string codigo) 
+        {
+            int enc = -1; 
+
+            for (int i = 0; i < this.Productos.Count; i++)
+            {
+                if (this.Productos[i].codigo == codigo)
+                {
+                    enc = i;
+                }
+            }
+
+            return enc;
+        }
+
+        public bool agreProducto(Productos producto)  
+        {
+            int encon = this.validaProducto(producto.codigo);
+            if (encon >= 0)
+            {
+                this.Productos[encon].SumarCantidad(producto.Cantidad);
+            }
+            else
+            {
+                this.Productos.Add(producto);
+            }
+            return true;
+
+        }
+
+        public bool eliminarProducto(string codigo)
+        {
+            int encon = this.validaProducto(codigo);
+
+            if (encon >= 0)
+            {
+                this.Productos[encon].RemoveAt(encon);
+                return true;
+            }
+
+            return false;
+
+        }
+
+        public double validarDinero(string[] dinero)
+        {
+            double total = 0;
+            foreach (string item in dinero)
+            {
+                try
+                {
+                    total += double.Parse(item);
+
+                }
+                catch (Exception) { }
+
+            }
+
+            return total;
+        }
+              
+        public Productos Vender(string codigo)
+        {
+            int encon = this.validaProducto(codigo);
+            if (encon >= 0)
+            {
+                if (this.Productos[encon].Validarcantidad())
+                {
+
+                    string[] dinero = this.Pago.Split('-');
+
+                    double total = this.validarDinero(dinero);
+
+                    if (this.Productos[encon].validarValor(total))
+                    {
+                        this.Productos[encon].restarProductos();
+                        return this.Productos[encon];
+
+                    }
+
+                }
+            }
+
+            return null; 
+        }
+
+        public string listadeProducto()
+        {
+            string Datos = "";
+            foreach (Productos item in this.Productos)
+            {
+                Datos += item.codigo + " " + item.Nombre + " " + item.Categoria + " " + item.Cantidad + " " + item.Costo + "\n";
+            }
+            return Datos;
+        }
+
+
+    }
+}
+
+
+namespace Dispensador1
+{
+    public class Productos
+    {
+        public string codigo { get; set; }
+        public string Nombre { get; set; }
+        public string Categoria { get; set; }
+        public int Cantidad { get; set; }
+        public double Costo { get; set; }
+        public double Cambio { get; set; }
+
+        public void SumarCantidad(int cantidad)
+        {
+            this.Cantidad += cantidad;
+        }
+
+        public bool Validarcantidad()
+        {
+            if (this.Cantidad > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool validarValor(double valor)
+        {
+            if (this.Costo <= valor)
+            {
+                this.Cambio = valor - this.Costo;
+                return true;
+            }
+            return false;
+        }
+
+        public void restarProductos()
+        {
+            this.Cantidad--;
+        }
+
+        internal void RemoveAt(int encon)
+        {
+
+        }
+
+
+    }
+
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Maquina_Dispensadora dispensador = new Maquina_Dispensadora();
+
+            Console.WriteLine("Hola, gracias por adquirir nuestros productos y servicios");
+
+
+
+            while (true)
+            {
+
+
+                Console.WriteLine(dispensador.listadeProductos());
+
+                Console.WriteLine(" 1. Seleccionar Producto");
+                Console.WriteLine(" 2. Eliminar Producto ");
+                Console.WriteLine(" 3. Comprar producto  ");
+                string Menu = Console.ReadLine();
+
+
+                switch (Menu)
+                {
+                    case "1":
+                        Productos producto = new Productos();
+                        Console.WriteLine("Codigo ");
+                        producto.codigo = Console.ReadLine();
+
+                        Console.WriteLine("Nombre ");
+                        producto.Nombre = Console.ReadLine();
+
+                        Console.WriteLine("Categoria ");
+                        producto.Categoria = Console.ReadLine();
+
+                        Console.WriteLine("Cantidad ");
+                        producto.Cantidad = Convert.ToInt32(Console.ReadLine());
+
+                        Console.WriteLine("Cuesta ");
+                        producto.Costo = double.Parse(Console.ReadLine());
+
+                        dispensador.seleccProductos(producto);
+
+                        break;
+
+                    case "2":
+                        Console.WriteLine(" Codigo ");
+                        string codigo = Console.ReadLine();
+
+                        dispensador.eliminarProductos(codigo);
+                        break;
+
+                    case "3":
+                        Console.WriteLine(" Codigo");
+                        string codigo_venta = Console.ReadLine();
+
+                        Console.WriteLine(" Dinero solo de (200-100-50-25-10-5) ");
+                        dispensador.pago = Console.ReadLine();
+
+                        Productos preComprado = dispensador.Vender(codigo_venta);
+
+                        if (preComprado == null)
+                        {
+                            Console.WriteLine("No se puedo tomar el producto");
+                        }
+                        else
+                        {
+                            Console.WriteLine(" El producto comprado es {0} dinero sobrante {1}", preComprado.codigo, preComprado.Cambio);
+                        }
+
+                        break;
+                }
+
+                Console.WriteLine(" Continuar SI/NO");
+                if (Console.ReadLine() == "NO")
+                {
+                    break;
+                }
+
+            }
+        }
+    }
+}
